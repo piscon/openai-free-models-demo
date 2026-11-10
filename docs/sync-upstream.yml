@@ -1,0 +1,63 @@
+# Sync from upstream (piscon/openai-free-models)
+#
+# PLACEMENT: this file is a template. Copy its entire content into a
+# new file named ".github/workflows/sync-upstream.yml" in YOUR copy of
+# the repository (GitHub web UI: Add file → Create new file). It only
+# takes effect at that path. See README, "如何更新到新版".
+#
+# The "Deploy to Cloudflare" button creates an INDEPENDENT COPY of the
+# repository in your account — not a GitHub fork — so there is no
+# "Sync fork" button and updates do not flow in automatically.
+# This workflow closes that gap:
+#
+#   * Run it manually any time: Actions tab → "Sync from upstream" →
+#     Run workflow.
+#   * It also runs weekly on its own (Mondays 04:23 UTC).
+#
+# What it does: fast-forwards your copy to the latest upstream main,
+# while preserving YOUR wrangler.jsonc (the deploy flow wrote your own
+# KV namespace id into it — an upstream overwrite would break your
+# deployment). After it pushes, Workers Builds redeploys automatically.
+#
+# If your copy has diverged (you edited files that upstream also
+# changed), the fast-forward fails and the workflow stops without
+# pushing anything. Resolve it manually instead:
+#   git remote add upstream https://github.com/piscon/openai-free-models.git
+#   git pull upstream main && git push
+name: Sync from upstream
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '23 4 * * 1'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    # Never run inside the upstream repository itself.
+    if: github.repository != 'piscon/openai-free-models'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fast-forward to upstream, preserving local wrangler.jsonc
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          cp wrangler.jsonc /tmp/wrangler.local.jsonc
+          git remote add upstream https://github.com/piscon/openai-free-models.git
+          git fetch upstream
+          if ! git merge --ff-only upstream/main; then
+            echo '::error::Cannot fast-forward: your copy has diverged from upstream. Merge manually (see README, "如何更新到新版") — nothing was pushed.'
+            exit 1
+          fi
+          cp /tmp/wrangler.local.jsonc wrangler.jsonc
+          if ! git diff --quiet -- wrangler.jsonc; then
+            git add wrangler.jsonc
+            git commit -m 'chore: preserve local wrangler.jsonc (Cloudflare resource ids)'
+          fi
+          git push origin HEAD:main

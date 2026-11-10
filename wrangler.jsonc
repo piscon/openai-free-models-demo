@@ -1,0 +1,34 @@
+{
+  // OpenAI Free Models — one-click deployable Cloudflare Worker.
+  // The "Deploy to Cloudflare" button reads this file: it provisions the
+  // KV namespace below and writes its id into your cloned repository.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "openai-free-models-demo",
+  "main": "src/index.js",
+  // Serve on the workers.dev subdomain. Note: the Deploy-button flow
+  // may still leave the workers.dev route disabled — enable it once in
+  // the dashboard (Worker → Settings → Domains & Routes), see README.
+  "workers_dev": true,
+  "compatibility_date": "2025-08-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS"
+  },
+  "kv_namespaces": [
+    {
+      "binding": "MODELS_KV","id": "c7630494a5d24fb4bdb00cef77ebb6ea"
+      // No "id" on purpose: the Deploy button (and `wrangler kv namespace
+      // create MODELS_KV`) fills it in for your own account.
+    }
+  ],
+  "triggers": {
+    // Once a day at 03:17 UTC (off the hour, so thousands of deployed
+    // instances do not hit OpenAI at the same minute). Deprecation
+    // notices are published months ahead, so daily is generous.
+    // Change it here if you prefer another schedule.
+    "crons": ["17 3 * * *"]
+  },
+  "observability": {
+    "enabled": true
+  }
+}

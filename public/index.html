@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenAI 免费模型速查 · 数据共享计划免费额度与使用指南</title>
+<meta name="description" content="OpenAI 数据共享计划的每日免费 token 名单速查：两个共享额度池、按任务分的 5 组模型、新锐与关停标记、官方接班人，以及开启与避坑指南。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='42' fill='%230d0d0d'/><text x='50' y='66' font-size='52' text-anchor='middle' fill='white' font-family='Arial' font-weight='bold'>F</text></svg>">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">F</div>
+      <div>
+        <div class="brand-name">OpenAI 免费模型速查</div>
+        <div class="brand-sub">数据共享计划 · 每日免费 token 名单与使用指南</div>
+      </div>
+    </div>
+    <div class="top-actions">
+      <nav class="tabs" aria-label="视图切换">
+        <button class="tab is-active" data-view="lookup" type="button">速查表</button>
+        <button class="tab" data-view="guide" type="button">使用指南</button>
+      </nav>
+      <a class="api-link" href="https://platform.openai.com/" target="_blank" rel="noopener">API 后台 <span aria-hidden="true">↗</span></a>
+      <button id="themeToggle" class="icon-btn" type="button" aria-label="切换深浅色" title="切换深浅色">◐</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- ============ 速查表 ============ -->
+  <section id="view-lookup">
+    <div class="tier-bar">
+      <span class="tier-label">我的组织层级</span>
+      <div class="chips" id="tierChips" role="group" aria-label="选择你的组织层级"><!-- JS 渲染 --></div>
+      <span class="tier-note" id="tierNote"></span>
+    </div>
+    <div class="quota-grid" id="quotaGrid"><!-- JS 渲染 --></div>
+    <p class="selfcheck">不知道自己在哪一层？登录 <a href="https://platform.openai.com/" target="_blank" rel="noopener">platform.openai.com</a> → 设置 → <strong>Organization → Limits</strong>，页面上的 <strong>Usage Tiers</strong> 区会写明当前层级，也能在那里升级。层级是按<strong>组织</strong>算的：累计购买额度达标后自动升层。</p>
+
+    <div class="meta-line" id="metaLine">正在加载数据…</div>
+
+    <div class="toolbar">
+      <label class="search-box">
+        <span aria-hidden="true">⌕</span>
+        <input id="searchInput" type="search" placeholder="搜索模型名，如 gpt-6 / mini / o3…" autocomplete="off">
+      </label>
+      <div class="chips" role="group" aria-label="状态筛选">
+        <button class="chip is-active" data-filter="all" type="button">全部</button>
+        <button class="chip" data-filter="latest" type="button">新锐</button>
+        <button class="chip" data-filter="upcoming" type="button">即将关停</button>
+        <button class="chip" data-filter="gone" type="button">已关停</button>
+      </div>
+    </div>
+
+    <div id="groups"><!-- JS 渲染 --></div>
+    <div id="emptyState" class="empty" hidden>没有符合条件的模型，换个关键词试试。</div>
+
+    <div class="rules-strip">
+      <div class="rule"><strong>同池共享</strong><span>同一池里所有模型共用一份额度，不是每个模型一份</span></div>
+      <div class="rule"><strong>超额整单计费</strong><span>单次请求一旦让当日总量越线，整条请求按原价收费</span></div>
+      <div class="rule"><strong>UTC 00:00 重置</strong><span>每天世界时 00:00（北京 08:00 / 东京 09:00）清零</span></div>
+      <div class="rule"><strong>有前提</strong><span>账户需有正余额；工具调用不免费；免费额度与 Fast 加速二选一</span></div>
+    </div>
+  </section>
+
+  <!-- ============ 使用指南 ============ -->
+  <section id="view-guide" hidden>
+    <article class="guide">
+      <h2>这是什么</h2>
+      <p>这是 OpenAI 的<strong>数据共享计划</strong>：你的组织在 API 设置里同意把调用的输入和输出共享给 OpenAI 用于改进模型，作为交换，名单内的模型每天有一笔<strong>免费 token 额度</strong>。它不是免费套餐，也不是试用金 —— 交换条件就是你的调用数据，所以<strong>敏感项目、客户数据不要走开启共享的项目</strong>。</p>
+
+      <h2>我有没有资格</h2>
+      <ul class="check">
+        <li>组织层级在 <strong>Build / Launch / Grow</strong> 之中（按累计购买额度 $5 / $100 / $500 自动升层）；<strong>Free 层级不在计划内</strong>，一分免费额度都没有。查自己在哪一层：platform.openai.com → 设置 → Organization → Limits → Usage Tiers</li>
+        <li>你是组织的 <strong>Owner</strong>（只有 Owner 能看到并切换共享设置）</li>
+        <li>打开数据共享设置页能看到资格提示（如 “You’re eligible for free daily usage”）即代表有资格；看不到就是暂未开放</li>
+        <li>账户里要有<strong>正余额</strong>，否则免费额度用不了</li>
+      </ul>
+
+      <h2>四个层级对照表</h2>
+      <table class="mig">
+        <thead><tr><th>层级</th><th>怎么到达</th><th>月用量上限</th><th>旗舰池 / 天</th><th>小型池 / 天</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Free</strong></td><td>所在地区受支持即可</td><td>$100</td><td colspan="2">不在计划内（0）</td></tr>
+          <tr><td><strong>Build</strong></td><td>累计购买满 $5</td><td>$500</td><td>25 万</td><td>250 万</td></tr>
+          <tr><td><strong>Launch</strong></td><td>累计购买满 $100</td><td>$5,000</td><td>100 万</td><td>1,000 万</td></tr>
+          <tr><td><strong>Grow</strong></td><td>累计购买满 $500</td><td>$200,000</td><td>100 万</td><td>1,000 万</td></tr>
+        </tbody>
+      </table>
+      <p>Launch 与 Grow 的免费额度相同，差别在月用量上限和速率限制。层级按<strong>组织</strong>计算、达标自动升层；查自己在哪一层：platform.openai.com → 设置 → Organization → Limits 的 <strong>Usage Tiers</strong> 区。</p>
+
+      <h2>开启步骤</h2>
+      <ol class="steps">
+        <li>登录 <a href="https://platform.openai.com/" target="_blank" rel="noopener">platform.openai.com</a>，建议先单独建一个测试用 Project，只让不敏感的流量走它</li>
+        <li>进入 <em>Settings → Data controls → Sharing</em></li>
+        <li>打开 <em>Share inputs and outputs with OpenAI</em></li>
+        <li>只有<strong>开启了共享的项目</strong>产生的流量才计入免费额度；用量页里能看到 “Data Sharing Incentive” 的抵扣</li>
+        <li>随时可以回到同一页面关掉，关掉后不再共享，也不再有免费额度</li>
+      </ol>
+
+      <h2>额度规则与坑</h2>
+      <ul>
+        <li><strong>两个池子，各一份，按层级给量。</strong>旗舰池：Build 每天 25 万 token，Launch / Grow 每天 100 万；小型池：Build 每天 250 万，Launch / Grow 每天 1,000 万；Free 为 0。池内所有模型共享这一份。速查页顶部选好你的层级，数字就是你那份。</li>
+        <li><strong>越线整单收费。</strong>系统按当日累计判断：某次请求会让总量超过额度时，这整条请求按原价计费，不是只有超出的部分收费。</li>
+        <li><strong>每天 UTC 00:00 重置</strong>（北京 08:00 / 东京 09:00），不累计、不结转。</li>
+        <li><strong>不计入的部分：</strong>微调模型、微调训练、Evals 评测都不走免费额度。</li>
+        <li><strong>工具调用不免费（不是禁用，是不覆盖）：</strong>函数调用、联网搜索、文件搜索、代码解释器、Computer Use 等都属于官方说的 tool use，不在计划内。带工具的请求照常能跑，但按正常价格计费；联网搜索这类官方工具还另有按次费用。想白嫖，就别给请求挂工具。</li>
+        <li><strong>免费额度不能加速：</strong>免费 token 走的是一个独立处理层级（用量页里叫 <em>data sharing incentive tier</em>）。降低延迟要用 Fast 模式（请求参数 <code>service_tier: "fast"</code>，原 Priority 处理），而 Fast 模式是按溢价单独计费的——一个请求只能按一个层级处理，所以<strong>免费与加速二选一</strong>：设了 fast 的请求按 Fast 费率收费，不消耗免费额度。</li>
+        <li><strong>计划可终止：</strong>OpenAI 承诺终止前提前 30 天通知。</li>
+      </ul>
+
+      <h2>按任务选模型</h2>
+      <ul>
+        <li><strong>通用主力</strong> — 复杂推理、编码、多步 Agent 的默认档，拿不准就先看这组的新锐模型</li>
+        <li><strong>深度推理</strong> — o 系列，数学、科学、法律、金融这类高难多步问题；代价是慢，且这组多数已排期关停</li>
+        <li><strong>编程专用</strong> — 为 Codex 的 Agent 编程优化；注意本组都已关停，新项目直接用通用主力的新锐模型写代码</li>
+        <li><strong>视觉与长文</strong> — GPT-4o 的看图与多模态、GPT-4.1 的百万上下文长文档；整组都在关停倒计时里</li>
+        <li><strong>轻量高速</strong> — mini / nano 档，分类、抽取、排序、打标这类高量重复活，额度池还大（小型池 1,000 万/天）</li>
+      </ul>
+
+      <h2>落幕与迁移</h2>
+      <p>下面这张表来自 OpenAI 官方下架页，本站每天自动同步一次。<strong>带关停日期的模型不要用在新项目上</strong>，按官方接班人迁移：</p>
+      <div class="table-box"><table class="mig-table">
+        <thead><tr><th>模型</th><th>关停日期</th><th>状态</th><th>官方接班人</th></tr></thead>
+        <tbody id="migrationBody"><!-- JS 渲染 --></tbody>
+      </table></div>
+
+      <h2>常见问题</h2>
+      <dl class="faq">
+        <dt>这是真免费吗？</dt>
+        <dd>额度内是真免费，但门槛是先到 Build 层级（累计购买满 $5）且保持正余额；Free 层级不在计划内。交换条件是共享调用数据。</dd>
+        <dt>ChatGPT 的 Plus / Pro 订阅包含 API 免费额度吗？</dt>
+        <dd>不包含。订阅和 API 是两套账，这个计划只针对 API 组织。</dd>
+        <dt>为什么名单里有已经关停的模型？</dt>
+        <dd>官方那篇文章更新滞后，还挂着已关停的模型。本站按官方下架页给它们打了「已关停」标记，复制之前先看标记。</dd>
+        <dt>额度是每个模型一份吗？</dt>
+        <dd>不是。同一个池里的模型共用一份，旗舰池一天总共就 100 万 token。</dd>
+        <dt>用了工具调用（联网搜索等）还免费吗？</dt>
+        <dd>不免费。工具调用不在计划内：工具本身能正常用，但带工具的请求按正常价格收费，联网搜索等官方工具还另有按次费用。</dd>
+        <dt>想响应快点，能开 Fast 模式（service_tier: "fast"）又用免费额度吗？</dt>
+        <dd>不能同时。免费 token 走 data sharing incentive tier 层级，Fast 模式是溢价计费的处理层级，二选一：开了 fast 就按 Fast 费率收费，不再走免费额度。</dd>
+      </dl>
+
+      <h2>数据来源与免责</h2>
+      <p>模型名单与额度来自 OpenAI 官方帮助文章，关停日期与接班人来自 OpenAI 官方下架页（链接见页脚）。本站为第三方整理工具，与 OpenAI 无关；数据可能滞后，最终以官方页面为准。</p>
+    </article>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  <div>数据来源：<a href="https://help.openai.com/en/articles/10306912-sharing-feedback-evaluation-and-fine-tuning-data-and-api-inputs-and-outputs-with-openai" target="_blank" rel="noopener">OpenAI 帮助文章（数据共享计划）</a> · <a href="https://developers.openai.com/api/docs/deprecations" target="_blank" rel="noopener">OpenAI 官方下架页</a></div>
+  <div class="foot-sub" id="footNote">本站每日由定时任务同步一次官方下架信息；页面不会、也不能触发抓取。本站与 OpenAI 无隶属关系。</div>
+  <div class="foot-sub">致谢与交流：数据全部来自 OpenAI 官方公开文档，感谢官方把规则写明白；也感谢 <a href="https://linux.do" target="_blank" rel="noopener">LINUX DO</a> 社区的佬们——有问题、建议或想交流，欢迎来社区找我。</div>
+</footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<script src="./app.js"></script>
+</body>
+</html>
